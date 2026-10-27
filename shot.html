@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#050505;overflow:hidden}</style></head>
+<body>
+<iframe id="f" src="/index.html" style="border:0;width:100vw;height:100vh"></iframe>
+<pre id="errlog" style="position:fixed;bottom:0;left:0;color:#f00;z-index:9;font-size:10px;background:#000"></pre>
+<script>
+  var params = new URLSearchParams(location.search);
+  var offset = parseInt(params.get('offset') || '0', 10);
+  var width = params.get('w');
+  var errors = [];
+  var f = document.getElementById('f');
+  f.addEventListener('load', function () {
+    try {
+      var w = f.contentWindow;
+      w.onerror = function (msg, src, line) { errors.push(msg + ' @' + line); document.getElementById('errlog').textContent = 'JSERR: ' + errors.join(' | '); };
+      if (width) { f.style.width = width + 'px'; }
+      w.scrollTo(0, offset);
+      setTimeout(function () { w.scrollTo(0, offset); }, 300);
+    } catch (e) { document.getElementById('errlog').textContent = 'ERR ' + e.message; }
+  });
+</script>
+</body>
+</html>

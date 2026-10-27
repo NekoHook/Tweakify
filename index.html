@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tweakify — Your tweaks. Your device. Your choice.</title>
+  <meta name="description" content="Tweakify is an open-source project building a modern package management experience for jailbroken iOS. Explore the vision, follow development, and help shape the future of tweak management.">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tweakify — Your tweaks. Your device. Your choice.">
+  <meta property="og:description" content="An open-source package manager for jailbroken iOS — under active development. Explore the vision, follow progress, contribute.">
+  <meta property="og:image" content="assets/Tweakify-512.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tweakify — Your tweaks. Your device. Your choice.">
+  <meta name="twitter:description" content="An open-source package manager for jailbroken iOS — under active development.">
+  <meta name="twitter:image" content="assets/Tweakify-512.png">
+
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="assets/fonts.css">
+  <style>
+    /* ============================================================
+       Tweakify — open-source jailbreak package manager (in dev).
+       One idea: honesty is the design. The page sells a direction,
+       not a release. Black paper #000 (so the square logo blends
+       seamlessly), signal green taken from the supplied logo
+       (#00F975), mono metadata, hairlines, numbered sections.
+       Fonts are local: Bricolage Grotesque + JetBrains Mono.
+       ============================================================ */
+    :root {
+      --bg: #000000;
+      --panel: #0a0b0a;
+      --panel-2: #0e100e;
+      --line: #1c1f1d;
+      --line-strong: #2b2f2c;
+      --green: #00f975;
+      --green-dim: rgba(0, 249, 117, 0.55);
+      --text: #e9ece9;
+      --muted: #8a948c;
+      --dim: #5a625c;
+      --font-display: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--green); color: #000; }
+
+    a { color: inherit; }
+    img { max-width: 100%; display: block; }
+    [id] { scroll-margin-top: 84px; }
+
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 2px; }
+
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .mono { font-family: var(--font-mono); }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(0, 0, 0, 0.94);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+    .brand img { width: 26px; height: 26px; border-radius: 50%; }
+    .brand b {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    .brand i {
+      font-family: var(--font-mono);
+      font-style: normal;
+      font-size: 11px;
+      color: var(--dim);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 2px 7px;
+      letter-spacing: 0.06em;
+    }
+    .topnav { display: flex; align-items: center; gap: 24px; }
+    .topnav a {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .topnav a:hover { color: var(--green); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 6px;
+      padding: 11px 18px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .btn svg { flex: none; }
+    .btn.ghost {
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--line-strong);
+    }
+    .btn.ghost:hover { border-color: var(--green-dim); color: var(--green); }
+    .btn.solid {
+      color: #04150b;
+      background: var(--green);
+      border: 1px solid var(--green);
+      font-weight: 600;
+    }
+    .btn.solid:hover { background: #3dff9b; border-color: #3dff9b; }
+    .btn.solid:active { transform: translateY(1px); }
+
+    .nav-toggle { display: none; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 72px 24px 84px;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 56px;
+      align-items: center;
+    }
+    .hero-media {
+      position: relative;
+      aspect-ratio: 1;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+    .hero-media .orb {
+      width: 62%;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 0 90px rgba(0, 249, 117, 0.18);
+    }
+    .hero-media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0 3px,
+        rgba(0, 0, 0, 0.16) 3px 4px
+      );
+      pointer-events: none;
+    }
+    .hero-side { min-width: 0; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex: none;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 5vw, 60px);
+      font-weight: 750;
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--green);
+    }
+    .lede {
+      margin-top: 18px;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 54ch;
+    }
+
+    /* ---------- Development status card: the core object ---------- */
+    .devcard {
+      margin-top: 34px;
+      background: var(--panel-2);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+    }
+    .devcard-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .devcard-bar .dots { display: flex; gap: 6px; }
+    .devcard-bar .dots i {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--line-strong);
+      display: block;
+    }
+    .devcard-bar .dots i:first-child { background: var(--green-dim); }
+    .devcard-bar .t-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .dev-rows { padding: 8px 18px 12px; }
+    .dev-row {
+      display: flex;
+      gap: 16px;
+      align-items: baseline;
+      padding: 11px 0;
+      border-bottom: 1px dashed var(--line);
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+    }
+    .dev-row:last-child { border-bottom: none; }
+    .dev-row dt {
+      flex: none;
+      width: 84px;
+      color: var(--dim);
+    }
+    .dev-row dd { color: var(--text); min-width: 0; }
+    .dev-row dd.ok { color: var(--green); font-weight: 600; }
+    .dev-row dd.dim { color: var(--muted); }
+    .dev-row dd a {
+      color: var(--green);
+      text-decoration: none;
+    }
+    .dev-row dd a:hover { text-decoration: underline; }
+    .devcard-foot {
+      padding: 11px 18px;
+      border-top: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    .hero-actions {
+      margin-top: 26px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ---------- Sections ---------- */
+    section { border-bottom: 1px solid var(--line); }
+    .sec {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 76px 24px 84px;
+    }
+    .sec-head {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    .sec-head .num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--green);
+      padding-top: 10px;
+    }
+    .sec-head h2 {
+      font-size: clamp(27px, 3.6vw, 40px);
+      font-weight: 720;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      max-width: 24ch;
+    }
+    .sec-head p {
+      margin-top: 12px;
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    /* ---------- Features: numbered index, deliberately not a card row ---------- */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 56px;
+      border-top: 1px solid var(--line);
+    }
+    .feat {
+      display: flex;
+      flex-direction: column;
+      padding: 26px 0 30px;
+      border-bottom: 1px solid var(--line);
+    }
+    .feat-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .feat-top .fn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--green);
+    }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+    .tag.dev { color: var(--green); border-color: rgba(0, 249, 117, 0.4); background: rgba(0, 249, 117, 0.06); }
+    .tag.vision { color: var(--dim); }
+    .feat h3 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .feat p {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.62;
+    }
+
+    /* ---------- Development status / roadmap ---------- */
+    .develop-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 48px;
+      align-items: start;
+    }
+    .develop-copy p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+      max-width: 56ch;
+    }
+    .develop-copy p + p { margin-top: 14px; }
+    .develop-copy .btn { margin-top: 26px; }
+    .road {
+      list-style: none;
+      border-top: 1px solid var(--line);
+    }
+    .road li {
+      display: flex;
+      gap: 18px;
+      align-items: baseline;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .r-tag {
+      flex: none;
+      width: 76px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+    .r-tag.now { color: var(--green); }
+    .road h4 {
+      font-size: 15.5px;
+      font-weight: 620;
+      letter-spacing: -0.005em;
+    }
+    .road-note {
+      margin-top: 16px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--dim);
+    }
+
+    /* ---------- Contribute ---------- */
+    .contribute-inner { max-width: 720px; }
+    .contribute-inner .eyebrow2 { color: var(--green); }
+    .contribute-inner h2 {
+      font-size: clamp(27px, 3.6vw, 40px);
+      font-weight: 720;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .contribute-inner > p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.65;
+      max-width: 58ch;
+    }
+    .cta-row {
+      margin-top: 30px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .gh-meta {
+      margin-top: 30px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .gh-meta span + span::before { content: '·'; margin-right: 14px; color: var(--line-strong); }
+
+    /* ---------- Footer ---------- */
+    .site-footer { border-bottom: none; }
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 24px 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .f-brand { display: flex; align-items: flex-start; gap: 12px; }
+    .f-brand img { width: 24px; height: 24px; border-radius: 50%; margin-top: 2px; }
+    .f-brand .f-name {
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .f-desc {
+      color: var(--dim);
+      font-size: 13.5px;
+      line-height: 1.6;
+      max-width: 40ch;
+    }
+    .f-right {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .f-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .f-links a {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .f-links a:hover { color: var(--green); }
+    .f-meta {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--dim);
+    }
+
+    /* ---------- Cursor blink ---------- */
+    @keyframes blink { 50% { opacity: 0; } }
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1.05em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      margin-left: 4px;
+      animation: blink 1.1s steps(1) infinite;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; padding-top: 52px; }
+      .hero-media { max-width: 420px; }
+      .develop-grid { grid-template-columns: 1fr; gap: 36px; }
+    }
+    @media (max-width: 860px) {
+      .feat-grid { grid-template-columns: 1fr; gap: 0; }
+    }
+    @media (max-width: 720px) {
+      .topnav {
+        display: none;
+        position: absolute;
+        top: 62px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        background: #070807;
+        border-bottom: 1px solid var(--line);
+        padding: 10px 20px 14px;
+      }
+      .topnav.open { display: flex; }
+      .topnav a { padding: 12px 4px; font-size: 14px; border-bottom: 1px solid var(--line); }
+      .topnav a:last-child { border-bottom: none; }
+      .topbar-inner { position: relative; }
+      .brand i { display: none; }
+      .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background: none;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .topbar-right .btn.ghost span { display: none; }
+      .topbar-right .btn.ghost { padding: 11px 13px; }
+      .sec { padding: 56px 24px 64px; }
+      .sec-head { grid-template-columns: 1fr; gap: 6px; margin-bottom: 30px; }
+      .sec-head .num { padding-top: 0; }
+      .dev-row dt { width: 72px; }
+      .footer-inner { grid-template-columns: 1fr; gap: 22px; }
+    }
+
+    /* ---------- Reduced motion ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .cursor { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="Tweakify home">
+        <img src="assets/Tweakify-512.png" alt="Tweakify logo" width="26" height="26">
+        <b>Tweakify</b>
+        <i>in dev</i>
+      </a>
+      <nav class="topnav" id="mainNav" aria-label="Main navigation">
+        <a href="#top">Overview</a>
+        <a href="#features">Features</a>
+        <a href="https://github.com/NekoHook/Sileofy#readme" target="_blank" rel="noopener noreferrer">Documentation</a>
+        <a href="#contribute">Contribute</a>
+      </nav>
+      <div class="topbar-right">
+        <a class="btn ghost" href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ================= Hero: logo + honest development status ================= -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-media" aria-hidden="true">
+          <img class="orb" src="assets/Tweakify-512.png" alt="" width="360" height="360">
+        </div>
+        <div class="hero-side">
+          <p class="eyebrow">OPEN-SOURCE JAILBREAK TOOLING</p>
+          <h1>Your tweaks. Your device. <em>Your choice.</em></h1>
+          <p class="lede">Tweakify is an open-source project building a modern package management experience for jailbroken iOS devices. Explore the vision, follow development, and help shape the future of tweak management.</p>
+
+          <div class="devcard">
+            <div class="devcard-bar">
+              <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <span class="t-title">development status</span>
+            </div>
+            <dl class="dev-rows">
+              <div class="dev-row">
+                <dt>status</dt>
+                <dd class="ok">in development<span class="cursor" aria-hidden="true"></span></dd>
+              </div>
+              <div class="dev-row">
+                <dt>source</dt>
+                <dd><a href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">public on GitHub</a></dd>
+              </div>
+              <div class="dev-row">
+                <dt>install</dt>
+                <dd class="dim">not yet — nothing has shipped</dd>
+              </div>
+              <div class="dev-row">
+                <dt>docs</dt>
+                <dd><a href="https://github.com/NekoHook/Sileofy#readme" target="_blank" rel="noopener noreferrer">README on GitHub</a></dd>
+              </div>
+            </dl>
+            <div class="devcard-foot">&gt; built in the open — every change lands on GitHub</div>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn solid" href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+              Explore on GitHub
+            </a>
+            <a class="btn ghost" href="#contribute">Contribute</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 01 Features ================= -->
+    <section id="features">
+      <div class="sec">
+        <div class="sec-head">
+          <span class="num">01</span>
+          <div>
+            <h2>A package manager, taken from the drawing board.</h2>
+            <p>What Tweakify is meant to do — stated as goals, not as shipping features. The labels say exactly where each one stands today.</p>
+          </div>
+        </div>
+        <div class="feat-grid">
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">01</span>
+              <span class="tag">Planned</span>
+            </div>
+            <h3>Package discovery</h3>
+            <p>Find and explore jailbreak tweaks — browse, search and filter, with the details that matter surfaced up front.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">02</span>
+              <span class="tag">Planned</span>
+            </div>
+            <h3>Repository management</h3>
+            <p>Add, organize and refresh package sources. Repos are first-class citizens, not an afterthought.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">03</span>
+              <span class="tag">Planned</span>
+            </div>
+            <h3>Package details</h3>
+            <p>Inspect versions, descriptions, dependencies and compatibility before anything touches your device.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">04</span>
+              <span class="tag dev">In development</span>
+            </div>
+            <h3>Open source</h3>
+            <p>Every line is public from day one. Inspect the code, question it, improve it — the repository is the source of truth.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">05</span>
+              <span class="tag vision">Vision</span>
+            </div>
+            <h3>Compatibility first</h3>
+            <p>Designed around the realities of jailbroken iOS — environments, iOS versions and what actually works together.</p>
+          </article>
+          <article class="feat">
+            <div class="feat-top">
+              <span class="fn">06</span>
+              <span class="tag vision">Vision</span>
+            </div>
+            <h3>Community driven</h3>
+            <p>Development happens in public. Issues, pull requests and discussion decide what Tweakify becomes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 02 Development status ================= -->
+    <section id="develop">
+      <div class="sec">
+        <div class="sec-head">
+          <span class="num">02</span>
+          <div>
+            <h2>Under active development.</h2>
+          </div>
+        </div>
+        <div class="develop-grid">
+          <div class="develop-copy">
+            <p>Tweakify is being built in the open. Today the project is its foundation: the source code, this website and the plan — all public, all early. There is nothing to install yet, and this page won't pretend otherwise.</p>
+            <p>What exists is easy to check: read the source, watch the repository and see every decision as it lands. The gap between the vision and the current state is part of the project — it is exactly what development is for.</p>
+            <a class="btn ghost" href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+              Follow development
+            </a>
+          </div>
+          <div>
+            <ol class="road">
+              <li>
+                <span class="r-tag now">now</span>
+                <h4>Project foundation — website, design direction, planning</h4>
+              </li>
+              <li>
+                <span class="r-tag">planned</span>
+                <h4>Package browsing and search</h4>
+              </li>
+              <li>
+                <span class="r-tag">planned</span>
+                <h4>Repository management</h4>
+              </li>
+              <li>
+                <span class="r-tag">planned</span>
+                <h4>Package details, dependencies and compatibility</h4>
+              </li>
+              <li>
+                <span class="r-tag">planned</span>
+                <h4>Installing, updating and removing packages</h4>
+              </li>
+            </ol>
+            <p class="road-note">&gt; order reflects priority, not a schedule — no dates, no percentages</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 03 Open source & contribute ================= -->
+    <section id="contribute">
+      <div class="sec">
+        <div class="contribute-inner">
+          <p class="eyebrow2">03 — contribute</p>
+          <h2>Open source, in the open.</h2>
+          <p>Tweakify aims to be fully open source. Inspect the code, report what breaks, propose what's missing — issues and pull requests are the process while a fuller contribution guide is being drafted.</p>
+          <div class="cta-row">
+            <a class="btn solid" href="https://github.com/NekoHook/Sileofy/issues" target="_blank" rel="noopener noreferrer">Open an issue</a>
+            <a class="btn ghost" href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">Read the source</a>
+          </div>
+          <div class="gh-meta">
+            <span>iOS · jailbreak tooling</span>
+            <span>community-driven</span>
+            <span>PRs welcome</span>
+            <span>license: TBD</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="f-brand">
+        <img src="assets/Tweakify-512.png" alt="Tweakify logo" width="24" height="24">
+        <div>
+          <a class="f-name" href="#top">Tweakify</a>
+          <p class="f-desc">An open-source package manager for jailbroken iOS — under active development, built in the open.</p>
+        </div>
+      </div>
+      <div class="f-right">
+        <nav class="f-links" aria-label="Footer navigation">
+          <a href="#top">Overview</a>
+          <a href="#features">Features</a>
+          <a href="#develop">Development</a>
+          <a href="#contribute">Contribute</a>
+          <a href="https://github.com/NekoHook/Sileofy" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/NekoHook/Sileofy#readme" target="_blank" rel="noopener noreferrer">Docs</a>
+        </nav>
+        <div class="f-meta">license: TBD · © <span id="year">2026</span> Tweakify contributors</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Footer year
+      var yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Mobile nav
+      var toggle = document.getElementById('navToggle');
+      var nav = document.getElementById('mainNav');
+      if (toggle && nav) {
+        toggle.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        });
+        nav.addEventListener('click', function (e) {
+          if (e.target.closest('a')) {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
